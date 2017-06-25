@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.sa.MainActivity" >
+    <item
+        android:id="@+id/save_gesture"
+        android:icon="@drawable/ic_action_done"
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        android:title="@string/save_gesture"/>
+    <item
+        android:id="@+id/clear_gesture"
+        android:icon="@drawable/ic_action_clear"
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        android:title="@string/clear"/>
+
+</menu>

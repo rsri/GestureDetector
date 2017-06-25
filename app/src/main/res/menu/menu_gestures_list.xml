@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/gesture_add_menu"
+        android:title="@string/add_gesture_menu"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_action_add"
+        />
+    <item android:id="@+id/gesture_test_menu"
+        android:title="@string/test_gesture_menu"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_action_test"
+        />
+
+</menu>
