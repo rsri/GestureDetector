@@ -1,30 +1,30 @@
 package com.srika.gesturedetector;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.gesture.Gesture;
 import android.gesture.GestureLibraries;
 import android.gesture.GestureLibrary;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupMenu;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Set;
 
 public class GestureListActivity extends AppCompatActivity {
     private static final String TAG = "GestureListActivity";
-    private String mCurrentGestureName, mNewGestureName;
     private ListView mGestureListView;
     private static ArrayList<GestureHolder> mGestureList;
     private GestureListAdapter mGestureAdapter;
@@ -36,9 +36,6 @@ public class GestureListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gestures_list);
         Log.d(TAG, getApplicationInfo().dataDir);
-
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
 
         mGestureListView = (ListView) findViewById((R.id.gestures_list));
         fetchListOfGestures();
@@ -95,20 +92,24 @@ public class GestureListActivity extends AppCompatActivity {
                     mGestureList.add(new GestureHolder(g, gestureName));
                 }
             }
+            Collections.sort(mGestureList, new Comparator<GestureHolder>() {
+                @Override
+                public int compare(GestureHolder o1, GestureHolder o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public void populateMenu(View view){
-        //ImageView idView = (ImageView) view.findViewById(R.id.gesture_id);
-        //Log.d(TAG, "ha ha" + idView.getText().toString());
-        LinearLayout vwParentRow = (LinearLayout)view.getParent().getParent();
-        TextView tv = (TextView)vwParentRow.findViewById(R.id.gesture_name_ref);
-        mCurrentGestureName = tv.getText().toString();
-        PopupMenu popup = new PopupMenu(this, view);
-        popup.getMenuInflater().inflate(R.menu.gesture_item_options, popup.getMenu());
-        popup.show();
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v.getId() == R.id.gestures_list) {
+            menu.add(0, v.getId(), 0, R.string.rename);
+            menu.add(0, v.getId(), 0, R.string.delete);
+        }
     }
 
     public void addGesture(){
@@ -121,15 +122,31 @@ public class GestureListActivity extends AppCompatActivity {
         startActivity(testGesture);
     }
 
-    public void deleteButtonClick(MenuItem item){
-        gLib.removeEntry(mCurrentGestureName);
+    public void deleteButtonClick(GestureHolder holder) {
+
+        gLib.removeGesture(holder.getName(), holder.getGesture());
         gLib.save();
-        mCurrentGestureName = "";
         refreshList();
     }
 
-    public void renameButtonClick(MenuItem item){
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        Log.d(TAG, ""+item.getMenuInfo());
+        if (item.getTitle().toString().equals(getString(R.string.rename))) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            GestureHolder holder = mGestureList.get(info.position);
+            renameButtonClick(holder);
+            return true;
+        } else if (item.getTitle().toString().equals(getString(R.string.delete))) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            GestureHolder holder = mGestureList.get(info.position);
+            deleteButtonClick(holder);
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
 
+    public void renameButtonClick(final GestureHolder holder){
         AlertDialog.Builder namePopup = new AlertDialog.Builder(this);
         namePopup.setTitle(getString(R.string.enter_new_name));
         //namePopup.setMessage(R.string.enter_name);
@@ -141,10 +158,16 @@ public class GestureListActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (!nameField.getText().toString().isEmpty()) {
-                    mNewGestureName = nameField.getText().toString();
-                    saveGesture();
+                    String gestureName = nameField.getText().toString();
+                    Gesture gesture = holder.getGesture();
+                    gLib.removeGesture(holder.getName(), gesture);
+                    gLib.addGesture(gestureName, gesture);
+                    if (gLib.save()){
+                        Log.e(TAG, "gesture renamed!");
+                        refreshList();
+                    }
                 } else {
-                    renameButtonClick(null);  //TODO : validation
+                    renameButtonClick(holder);  //TODO : validation
                     showToast(getString(R.string.invalid_name));
                 }
             }
@@ -152,26 +175,12 @@ public class GestureListActivity extends AppCompatActivity {
         namePopup.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                mNewGestureName = "";
-                mCurrentGestureName = "";
             }
         });
 
         namePopup.show();
     }
 
-    private void saveGesture() {
-        ArrayList<Gesture> list = gLib.getGestures(mCurrentGestureName);
-        if (!list.isEmpty()) {
-            gLib.removeEntry(mCurrentGestureName);
-            gLib.addGesture(mNewGestureName, list.get(0));
-            if (gLib.save()) {
-                Log.e(TAG, "gesture renamed!");
-                refreshList();
-            }
-        }
-        mNewGestureName = "";
-    }
     private void showToast(String string){
         Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
     }

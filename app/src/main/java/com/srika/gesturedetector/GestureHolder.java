@@ -7,11 +7,11 @@ import android.gesture.Gesture;
  */
 public class GestureHolder {
     private Gesture gesture;
-    private String gestureNaam;
+    private String gestureName;
 
     public GestureHolder(Gesture gesture, String naam){
         this.gesture = gesture;
-        this.gestureNaam = naam;
+        this.gestureName = naam;
     }
 
     public Gesture getGesture(){
@@ -22,12 +22,12 @@ public class GestureHolder {
         this.gesture = gesture;
     }
 
-    public String getNaam(){
-        return gestureNaam;
+    public String getName(){
+        return gestureName;
     }
 
-    public void setNaam(String naam){
-        this.gestureNaam = naam;
+    public void setName(String naam){
+        this.gestureName = naam;
     }
 
 }

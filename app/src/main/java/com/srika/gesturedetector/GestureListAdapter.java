@@ -1,7 +1,6 @@
 package com.srika.gesturedetector;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -39,16 +38,12 @@ public class GestureListAdapter extends ArrayAdapter<GestureHolder> {
             v = inflater.inflate(R.layout.gesture_list_item, parent, false);
 
             // fill the layout with the right values
-            TextView idView = (TextView) v.findViewById(R.id.gesture_id);
             TextView nameView = (TextView) v.findViewById(R.id.gesture_name);
             ImageView gestureImageView = (ImageView) v.findViewById(R.id.gesture_image);
-            TextView nameViewRef = (TextView) v.findViewById(R.id.gesture_name_ref);
 
             holder = new GestureViewHolder();
-            holder.gestureId = idView;
             holder.gestureName = nameView;
             holder.gestureImage = gestureImageView;
-            holder.gestureNameRef = nameViewRef;
 
             final ImageView mMenuItemButton =  (ImageView)v.findViewById(R.id.menu_item_options);
             mMenuItemButton.setClickable(true);
@@ -60,9 +55,7 @@ public class GestureListAdapter extends ArrayAdapter<GestureHolder> {
         }
 
         GestureHolder gestureHolder = mGestureList.get(position);
-        holder.gestureId.setText(String.valueOf(gestureHolder.getGesture().getID()));
-        holder.gestureName.setText(gestureHolder.getNaam());
-        holder.gestureNameRef.setText(gestureHolder.getNaam());
+        holder.gestureName.setText(gestureHolder.getName());
 
         try {
             holder.gestureImage.setImageBitmap(gestureHolder.getGesture().toBitmap(30, 30, 3,
@@ -76,10 +69,8 @@ public class GestureListAdapter extends ArrayAdapter<GestureHolder> {
     }
 
     private class GestureViewHolder {
-        TextView gestureId;
         TextView gestureName;
         ImageView gestureImage;
-        TextView gestureNameRef;
 
     }
 }
